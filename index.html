@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Quote Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            transition: all 0.5s ease;
+        }
+
+        body.dark-theme {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating particles animation */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            animation: float 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            background: linear-gradient(45deg, #fff, #f8f9fa, #e9ecef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); }
+            to { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)); }
+        }
+
+        .quote-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 3rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 
+                0 25px 45px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            animation: containerFloat 6s ease-in-out infinite;
+            transition: all 0.5s ease;
+        }
+
+        body.dark-theme .quote-container {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 25px 45px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes containerFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(0.5deg); }
+        }
+
+        .quote-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .quote {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            font-weight: 300;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2rem;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            font-style: italic;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            animation: quoteAppear 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes quoteAppear {
+            0% { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.9);
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .author {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2.5rem;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+            animation: authorSlide 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes authorSlide {
+            0% {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .get-quote-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 
+                0 10px 25px rgba(102, 126, 234, 0.3),
+                0 5px 10px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        body.dark-theme .get-quote-btn {
+            background: linear-gradient(135deg, #4a5568, #2d3748);
+            box-shadow: 
+                0 10px 25px rgba(74, 85, 104, 0.4),
+                0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-theme .get-quote-btn:hover {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            box-shadow: 
+                0 20px 40px rgba(74, 85, 104, 0.5),
+                0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .get-quote-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .get-quote-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 
+                0 20px 40px rgba(102, 126, 234, 0.4),
+                0 10px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #764ba2, #f093fb);
+        }
+
+        .get-quote-btn:hover::before {
+            left: 100%;
+        }
+
+        .get-quote-btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .get-quote-btn:disabled {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading {
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+            font-size: 1.1rem;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-style: italic;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .quote-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            h1 {
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        /* Cool scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #764ba2, #f093fb);
+        }
+
+        /* Credit styling */
+        .credit {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .credit:hover {
+            color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.05);
+            text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .credit {
+                bottom: 15px;
+                right: 15px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Theme Toggle Switch */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .toggle-switch:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-slider::before {
+            content: '☀️';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-theme .toggle-slider {
+            transform: translateX(30px);
+            background: linear-gradient(135deg, #4a5568, #2d3748);
+        }
+
+        body.dark-theme .toggle-slider::before {
+            content: '🌙';
+        }
+
+        body.dark-theme .toggle-switch {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+            }
+            
+            .toggle-switch {
+                width: 50px;
+                height: 25px;
+                border-radius: 12.5px;
+            }
+            
+            .toggle-slider {
+                width: 20px;
+                height: 20px;
+                top: 1.5px;
+                left: 1.5px;
+            }
+            
+            .toggle-slider::before {
+                font-size: 10px;
+            }
+            
+            body.dark-theme .toggle-slider {
+                transform: translateX(25px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Quote Generator</h1>
+    
+    <!-- Theme Toggle Switch -->
+    <div class="theme-toggle">
+        <div class="toggle-switch" onclick="toggleTheme()">
+            <div class="toggle-slider"></div>
+        </div>
+    </div>
+    
+    <div class="quote-container">
+        <div class="quote" id="quote">Click the button below to get an inspiring quote</div>
+        <div class="author" id="author"></div>
+        <button class="get-quote-btn" id="getQuoteBtn" onclick="getNewQuote()">Get New Quote</button>
+    </div>
+
+    <a href="https://enzzy.me/" target="_blank" class="credit">by enzy</a>
+
+    <script>
+        // Array of quotes that will always work
+        const quotes = [
+            { content: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { content: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
+            { content: "Life is what happens to you while you're busy making other plans.", author: "John Lennon" },
+            { content: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+            { content: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
+            { content: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+            { content: "Don't let yesterday take up too much of today.", author: "Will Rogers" },
+            { content: "You learn more from failure than from success.", author: "Unknown" },
+            { content: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+            { content: "The only impossible journey is the one you never begin.", author: "Tony Robbins" },
+            { content: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+            { content: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+            { content: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
+            { content: "Your limitation—it's only your imagination.", author: "Unknown" },
+            { content: "Great things never come from comfort zones.", author: "Unknown" },
+            { content: "Dream it. Wish it. Do it.", author: "Unknown" },
+            { content: "Success doesn't just find you. You have to go out and get it.", author: "Unknown" },
+            { content: "The harder you work for something, the greater you'll feel when you achieve it.", author: "Unknown" },
+            { content: "Dream bigger. Do bigger.", author: "Unknown" },
+            { content: "Don't stop when you're tired. Stop when you're done.", author: "Unknown" }
+        ];
+
+        let currentQuoteIndex = -1;
+        let usedQuotes = [];
+
+        async function getNewQuote() {
+            const quoteElement = document.getElementById('quote');
+            const authorElement = document.getElementById('author');
+            const button = document.getElementById('getQuoteBtn');
+            
+            // Show loading state briefly for better UX
+            button.disabled = true;
+            quoteElement.innerHTML = '<span class="loading">Loading...</span>';
+            authorElement.textContent = '';
+            
+            // Add a small delay to show loading state
+            setTimeout(() => {
+                // First try API, then fall back to local quotes
+                tryAPIThenLocal(quoteElement, authorElement, button);
+            }, 500);
+        }
+
+        async function tryAPIThenLocal(quoteElement, authorElement, button) {
+            try {
+                // Try to fetch from API with short timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+                
+                const response = await fetch('https://api.quotable.io/random', {
+                    signal: controller.signal,
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    quoteElement.innerHTML = `"${data.content}"`;
+                    authorElement.textContent = `— ${data.author}`;
+                    console.log('Quote loaded from API');
+                } else {
+                    throw new Error('API response not ok');
+                }
+                
+            } catch (error) {
+                // API failed, use local quotes
+                console.log('API failed, using local quotes');
+                showLocalQuote(quoteElement, authorElement);
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        function showLocalQuote(quoteElement, authorElement) {
+            // Reset if we've used all quotes
+            if (usedQuotes.length >= quotes.length) {
+                usedQuotes = [];
+            }
+            
+            // Find a quote we haven't used recently
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * quotes.length);
+            } while (usedQuotes.includes(randomIndex) && usedQuotes.length < quotes.length);
+            
+            usedQuotes.push(randomIndex);
+            
+            const quote = quotes[randomIndex];
+            quoteElement.innerHTML = `"${quote.content}"`;
+            authorElement.textContent = `— ${quote.author}`;
+        }
+        
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('dark-theme');
+            
+            // Save theme preference
+            const isDark = body.classList.contains('dark-theme');
+            localStorage.setItem('darkTheme', isDark);
+        }
+        
+        // Load saved theme on page load
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('darkTheme');
+            if (savedTheme === 'true') {
+                document.body.classList.add('dark-theme');
+            }
+        }
+        
+        // Get a quote when the page loads
+        window.addEventListener('load', () => {
+            loadTheme();
+            getNewQuote();
+        });
+    </script>
+</body>
+</html>
